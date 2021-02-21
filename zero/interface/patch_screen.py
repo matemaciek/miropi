@@ -1,15 +1,12 @@
-import adafruit_ssd1306
-import board
-import busio
 import PIL.Image
 import PIL.ImageDraw
 
-from interface import icons
+import interface.icons
+import interface.ui
+import interface.logo_screen
+from interface.buttons import Command
 
-WIDTH  = 128
-HEIGHT = 64
-
-# assumption: WIDTH >= HEIGHT
+# assumption: W >= H
 #
 # /---------------|------------\
 # |               |            |
@@ -24,19 +21,32 @@ class Tile:
         self.state_v = state_v
         self.invert = invert
 
-class Screen:
-    def __init__(self, model):
-        self._model = model
+class PatchScreen(interface.ui.Screen):
+    def _start(self):
         self._cursor = (0, 0)
-        self._cursor_visible = False
-        self._icons = icons.Icons(HEIGHT / max(self._model.M, self._model.N))
-        self._i2c = busio.I2C(board.SCL, board.SDA)
-        self._display = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, self._i2c)
-        self._image = PIL.Image.new("1", (self._display.width, self._display.height))
-        self._draw_logo()
-        self._refresh()
+        self._cursor_visible = True
+        (W, self._H) = self._image.size
+        self._icons = interface.icons.Icons(self._H / max(self._model.M, self._model.N))
+        self.R_W = self._model.M * self._icons.size
+        self.L_W = W - self.R_W
+        self._draw_desc()
+        self._draw_all_tiles()
 
-    def move_cursor(self, delta):
+    def click(self, command):
+        if command == Command.LEFT:
+            return self._move_cursor((-1, 0))
+        if command == Command.RIGHT:
+            return self._move_cursor((1, 0))
+        if command == Command.UP:
+            return self._move_cursor((0, -1))
+        if command == Command.DOWN:
+            return self._move_cursor((0, 1))
+        if command == Command.ENTER:
+            return self._click_cursor()
+        if command == Command.BACK:
+            return self._back_cursor()
+
+    def _move_cursor(self, delta):
         if not self._cursor_visible:
             self._show_cursor()
             return
@@ -50,9 +60,8 @@ class Screen:
         self._draw_desc()
         self._draw_cursor(old_cursor)
         self._draw_cursor(self._cursor)
-        self._refresh()
 
-    def click_cursor(self):
+    def _click_cursor(self):
         if not self._cursor_visible:
             self._show_cursor()
             return
@@ -60,35 +69,37 @@ class Screen:
         self._model.toggle(self._cursor)
         self._draw_desc()
         self._draw_affected_tiles(self._cursor)
-        self._refresh()
 
-    def back_cursor(self):
+    def _back_cursor(self):
+        if not self._cursor_visible:
+            return interface.logo_screen.LogoScreen
         self._hide_cursor()
 
     def _show_cursor(self):
         self._cursor_visible = True
         self._draw_desc()
         self._draw_cursor(self._cursor)
-        self._refresh()
 
     def _hide_cursor(self):
         self._cursor_visible = False
         self._draw_desc()
         self._draw_cursor(self._cursor)
-        self._refresh()
 
     def _draw_desc(self):
         (i, j) = self._cursor
         draw = PIL.ImageDraw.Draw(self._image)
-        draw.rectangle((0, 0, WIDTH - HEIGHT, HEIGHT), fill=0)
+        draw.rectangle((0, 0, self.L_W - 1, self._H), fill=0)
+        #draw.line((self.L_W - 1, 0, self.L_W - 1, self.R_W), fill=1)
+        #draw.line((self.L_W - 1, self.R_W, self.L_W + self.R_W, self.R_W), fill=1)
         if not self._cursor_visible:
             return
+        max_l = int(self.L_W/6)
         input_name = self._model.input_name(i)
         output_name = self._model.output_name(j)
-        draw.text((0, 0), input_name[0:10], fill=1)
-        draw.text((0, 10), input_name[-10:], fill=1)
-        draw.text((0, 43), output_name[0:10], fill=1)
-        draw.text((0, 53), output_name[-10:], fill=1)
+        draw.text((0, 0), input_name[0:max_l-2]+"..", fill=1)
+        draw.text((0, 10), ".."+input_name[-max_l+2:], fill=1)
+        draw.text((0, 43), output_name[0:max_l-2]+"..", fill=1)
+        draw.text((0, 53), ".."+output_name[-max_l+2:], fill=1)
         icon = "connnected" if self._model.connected(self._cursor) else "disconnnected"
         self._draw_icon(icon, (0, 24))
 
@@ -105,7 +116,7 @@ class Screen:
 
     def _draw_tile(self, coord):
         (i, j) = coord
-        self._draw_image(self._icons.tile(self._tile(coord)), (WIDTH - HEIGHT + i*self._icons.size, j*self._icons.size))
+        self._draw_image(self._icons.tile(self._tile(coord)), (self.L_W + i*self._icons.size, j*self._icons.size))
 
     def _draw_all_tiles(self):
         for x in range(0, self._model.M):
@@ -128,10 +139,6 @@ class Screen:
     def _draw_logo(self):
         image = PIL.Image.open("miropi.png").convert("1")
         self._draw_image(image, (0, 0))
-
-    def _refresh(self):
-        self._display.image(self._image)
-        self._display.show()
 
     def _state(self, coord):
         return "on" if self._model.connected(coord) else "off"
