@@ -1,7 +1,7 @@
 # μρπ (miropi)
 MIDI Router on Raspberry Pi
 
-Work in progress.
+Work in progress. For now that's just a repository to track changes, but I plan to develop it to easy to install system. Feel free to try it out (clone this repository, figure out dependencies, start via `./run.sh`) and ask questions.
 
 ![](miropi.jpg)
 
