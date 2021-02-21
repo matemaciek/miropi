@@ -33,8 +33,7 @@ class Screen:
         self._i2c = busio.I2C(board.SCL, board.SDA)
         self._display = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, self._i2c)
         self._image = PIL.Image.new("1", (self._display.width, self._display.height))
-        self._draw_desc()
-        self._draw_all_tiles()
+        self._draw_logo()
         self._refresh()
 
     def move_cursor(self, delta):
@@ -90,8 +89,8 @@ class Screen:
         draw.text((0, 10), input_name[-10:], fill=1)
         draw.text((0, 43), output_name[0:10], fill=1)
         draw.text((0, 53), output_name[-10:], fill=1)
-        if self._model.connected(self._cursor):
-            self._draw_icon("connnected", (0, 24))
+        icon = "connnected" if self._model.connected(self._cursor) else "disconnnected"
+        self._draw_icon(icon, (0, 24))
 
     def _draw_cursor(self, cursor):
         self._draw_tile(cursor)
@@ -125,6 +124,10 @@ class Screen:
 
     def _draw_image(self, image, coord):
         self._image.paste(image, coord)
+
+    def _draw_logo(self):
+        image = PIL.Image.open("miropi.png").convert("1")
+        self._draw_image(image, (0, 0))
 
     def _refresh(self):
         self._display.image(self._image)
