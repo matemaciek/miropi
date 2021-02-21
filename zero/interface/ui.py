@@ -2,6 +2,7 @@ import adafruit_ssd1306
 import board
 import busio
 import abc
+import sys
 import PIL.Image
 
 WIDTH  = 128
@@ -39,6 +40,14 @@ class ScreenManager:
 
     def click(self, action):
         new_screen = self._screen.click(action)
+        if new_screen == -1:
+            self.exit()
         if new_screen is not None:
             self._screen = new_screen(self._model, self._image)
         self._refresh()
+
+    def exit(self):
+        draw = PIL.ImageDraw.Draw(self._image)
+        draw.text((100, 50), "Bye!", fill=1)
+        self._refresh()
+        sys.exit(0)
