@@ -3,6 +3,8 @@ MIDI Router on Raspberry Pi
 
 Work in progress.
 
+![](miropi.jpg)
+
 ## Hardware
 - Raspberry Pi: tested and developed on Pi Zero, so any regular Pi should work. Pi Pico version is a long-term goal, probably will need rewriting everything
 - Screen: ssd1306 128x64
