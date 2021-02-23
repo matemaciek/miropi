@@ -12,27 +12,27 @@ class Port:
 
 class Connections:
     def __init__(self):
-        self._inputs = [Port(port) for port in sorted(mido.get_input_names())]
-        self._outputs = [Port(port) for port in sorted(mido.get_output_names())]
-        self.M = len(self._inputs)
-        self.N = len(self._outputs)
+        self.inputs = [Port(port) for port in sorted(mido.get_input_names())]
+        self.outputs = [Port(port) for port in sorted(mido.get_output_names())]
+        self.M = len(self.inputs)
+        self.N = len(self.outputs)
         self._connections = {}
 
     def connected(self, coord):
         (i, j) = coord
         try:
-            return self._connections[i].connected(self._outputs[j])
+            return self._connections[i].connected(self.outputs[j])
         except KeyError:
             return False
 
     def toggle(self, coord):
         (i, j) = coord
         if i not in self._connections:
-            self._connections[i] = midi.connection.Connection(self._inputs[i])
-        self._connections[i].toggle(self._outputs[j])
+            self._connections[i] = midi.connection.Connection(self.inputs[i])
+        self._connections[i].toggle(self.outputs[j])
 
     def input_name(self, i):
-        return self._inputs[i].port
+        return self.inputs[i].port
 
     def output_name(self, j):
-        return self._outputs[j].port
+        return self.outputs[j].port

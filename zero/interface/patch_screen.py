@@ -1,6 +1,3 @@
-import PIL.Image
-import PIL.ImageDraw
-
 import interface.icons
 import interface.ui
 import interface.logo_screen
@@ -25,10 +22,9 @@ class PatchScreen(interface.ui.Screen):
     def _start(self):
         self._cursor = (0, 0)
         self._cursor_visible = True
-        (W, self._H) = self._image.size
         self._icons = interface.icons.Icons(self._H / max(self._model.M, self._model.N))
         self.R_W = self._model.M * self._icons.size
-        self.L_W = W - self.R_W
+        self.L_W = self._W - self.R_W
         self._draw_desc()
         self._draw_all_tiles()
 
@@ -87,8 +83,7 @@ class PatchScreen(interface.ui.Screen):
 
     def _draw_desc(self):
         (i, j) = self._cursor
-        draw = PIL.ImageDraw.Draw(self._image)
-        draw.rectangle((0, 0, self.L_W - 1, self._H), fill=0)
+        self._draw.rectangle((0, 0, self.L_W - 1, self._H), fill=0)
         #draw.line((self.L_W - 1, 0, self.L_W - 1, self.R_W), fill=1)
         #draw.line((self.L_W - 1, self.R_W, self.L_W + self.R_W, self.R_W), fill=1)
         if not self._cursor_visible:
@@ -96,10 +91,10 @@ class PatchScreen(interface.ui.Screen):
         max_l = int(self.L_W/6)
         input_name = self._model.input_name(i)
         output_name = self._model.output_name(j)
-        draw.text((0, 0), input_name[0:max_l-2]+"..", fill=1)
-        draw.text((0, 10), ".."+input_name[-max_l+2:], fill=1)
-        draw.text((0, 43), output_name[0:max_l-2]+"..", fill=1)
-        draw.text((0, 53), ".."+output_name[-max_l+2:], fill=1)
+        self._draw.text((0, 0), input_name[0:max_l-2]+"..", fill=1)
+        self._draw.text((0, 10), ".."+input_name[-max_l+2:], fill=1)
+        self._draw.text((0, 43), output_name[0:max_l-2]+"..", fill=1)
+        self._draw.text((0, 53), ".."+output_name[-max_l+2:], fill=1)
         icon = "connnected" if self._model.connected(self._cursor) else "disconnnected"
         self._draw_icon(icon, (0, 24))
 
@@ -135,10 +130,6 @@ class PatchScreen(interface.ui.Screen):
 
     def _draw_image(self, image, coord):
         self._image.paste(image, coord)
-
-    def _draw_logo(self):
-        image = PIL.Image.open("miropi.png").convert("1")
-        self._draw_image(image, (0, 0))
 
     def _state(self, coord):
         return "on" if self._model.connected(coord) else "off"

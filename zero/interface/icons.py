@@ -11,12 +11,13 @@ def _compile(data, size, invert):
     return PIL.Image.frombytes("1", (size, size), data)
 
 class Icons:
-    def __init__(self, max_size):
-        self.size = sorted([s for s in _raw_tiles.keys() if s <= max_size])[-1]
-        self._tiles = {
-            False: _compile(_raw_tiles[self.size], self.size, False),
-            True: _compile(_raw_tiles[self.size], self.size, True)
-        }
+    def __init__(self, max_size=None):
+        if max_size is not None:
+            self.size = sorted([s for s in _raw_tiles.keys() if s <= max_size])[-1]
+            self._tiles = {
+                False: _compile(_raw_tiles[self.size], self.size, False),
+                True: _compile(_raw_tiles[self.size], self.size, True)
+            }
         self._icons = _compile(_raw_icons, 16, False)
 
     def icon(self, name):

@@ -4,14 +4,17 @@ import busio
 import abc
 import sys
 import PIL.Image
+import PIL.ImageDraw
 
 WIDTH  = 128
 HEIGHT = 64
 
 class Screen(abc.ABC):
-    def __init__(self, model, image):
+    def __init__(self, model, image, draw):
         self._model = model
         self._image = image
+        self._draw = draw
+        (self._W, self._H) = self._image.size
         self._start()
 
     def _draw_image(self, image, coord):
@@ -31,7 +34,12 @@ class ScreenManager:
         self._i2c = busio.I2C(board.SCL, board.SDA)
         self._display = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, self._i2c)
         self._image = PIL.Image.new("1", (self._display.width, self._display.height))
-        self._screen = start_screen(self._model, self._image)
+        self._draw = PIL.ImageDraw.Draw(self._image)
+        self._show(start_screen)
+
+    def _show(self, screen):
+        self._draw.rectangle((0, 0, WIDTH, HEIGHT), fill=0)
+        self._screen = screen(self._model, self._image, self._draw)
         self._refresh()
 
     def _refresh(self):
@@ -43,11 +51,11 @@ class ScreenManager:
         if new_screen == -1:
             self.exit()
         if new_screen is not None:
-            self._screen = new_screen(self._model, self._image)
-        self._refresh()
+            self._show(new_screen)
+        else:
+            self._refresh()
 
     def exit(self):
-        draw = PIL.ImageDraw.Draw(self._image)
-        draw.text((100, 50), "Bye!", fill=1)
+        self._draw.text((100, 50), "Bye!", fill=1)
         self._refresh()
         sys.exit(0)
