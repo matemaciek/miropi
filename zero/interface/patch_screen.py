@@ -98,8 +98,8 @@ class PatchScreen(interface.ui.Screen):
         self._draw.text((0, 10), ".."+input_name[-max_l+2:], fill=1)
         self._draw.text((0, 43), output_name[0:max_l-2]+"..", fill=1)
         self._draw.text((0, 53), ".."+output_name[-max_l+2:], fill=1)
-        icon = "connnected" if self._model.connected(self._cursor) else "disconnnected"
-        self._draw_icon(icon, (0, 24))
+        icon = "connected" if self._model.connected(self._cursor) else "disconnected"
+        self._draw_icon(icon, (int(self.L_W/2) - 8, int(self._H/2) - 8))
 
     def _draw_cursor(self, cursor):
         self._draw_tile(cursor)

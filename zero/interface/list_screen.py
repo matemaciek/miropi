@@ -44,7 +44,7 @@ class ListScreen(interface.ui.Screen):
                 self._draw.text((text_offset, (i + 1)*dy), self._items[index][:n], fill=1)
                 self._draw.text((text_offset, (i + 1)*dy + FONT_H), self._items[index][n:], fill=1)
 
-        self._draw_image(self._icons.icon("disconnnected"), (2, int(self._H/2) - 8))
+        self._draw_image(self._icons.icon("disconnected"), (2, int(self._H/2) - 8))
         
         self._draw.rectangle((0, 0, len(self._title)*FONT_W, FONT_H), fill=1)
         self._draw.text((1, 0), self._title, fill=0)
