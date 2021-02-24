@@ -24,8 +24,8 @@ class PatchScreen(interface.ui.Screen):
     def _start(self):
         self._cursor = (0, 0)
         self._cursor_visible = False
-        self._icons = interface.icons.Icons(self._H / max(self._model.M, self._model.N))
-        self.R_W = self._model.M * self._icons.size
+        self._icons = interface.icons.Icons(self._H / max(self._model.M(), self._model.N()))
+        self.R_W = self._model.M() * self._icons.size
         self.L_W = self._W - self.R_W
         self._draw_desc()
         self._draw_all_tiles()
@@ -54,8 +54,8 @@ class PatchScreen(interface.ui.Screen):
         (dx, dy) = delta
         old_cursor = self._cursor
         self._cursor = (
-            (self._cursor[0] + dx) % self._model.M,
-            (self._cursor[1] + dy) % self._model.N
+            (self._cursor[0] + dx) % self._model.M(),
+            (self._cursor[1] + dy) % self._model.N()
         )
         self._draw_desc()
         self._draw_cursor(old_cursor)
@@ -117,15 +117,15 @@ class PatchScreen(interface.ui.Screen):
         self._draw_image(self._icons.tile(self._tile(coord)), (self.L_W + i*self._icons.size, j*self._icons.size))
 
     def _draw_all_tiles(self):
-        for x in range(0, self._model.M):
-            for y in range(0, self._model.N):
+        for x in range(0, self._model.M()):
+            for y in range(0, self._model.N()):
                 self._draw_tile((x, y))
 
     def _draw_affected_tiles(self, coord):
         (i, j) = coord
-        for x in range(i, self._model.M):
+        for x in range(i, self._model.M()):
             self._draw_tile((x, j))
-        for y in range(0, self._model.N):
+        for y in range(0, j):
             self._draw_tile((i, y))
 
     def _draw_icon(self, name, coord):
@@ -143,7 +143,7 @@ class PatchScreen(interface.ui.Screen):
 
     def _state_v(self, coord):
         (i, j) = coord
-        for y in range(j+1, self._model.N):
+        for y in range(j+1, self._model.N()):
             if self._model.connected((i, y)):
                 return 'V'
         return 'v'
