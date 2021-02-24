@@ -36,7 +36,7 @@ class Screen(abc.ABC):
     @abc.abstractmethod
     def click(self, command):
         if command == Command.BACK:
-            return (ScreenCommand.BACK, None)
+            return (ScreenCommand.BACK, 0)
         if command == Command.LEFT:
             return (ScreenCommand.PREV, None)
         if command == Command.RIGHT:
@@ -59,11 +59,11 @@ class ScreenManager:
         self._indexes.append(0)
         self._show_screen()
 
-    def _back(self):
+    def _back(self, args):
         self._screens.pop()
         self._indexes.pop()
         if len(self._screens) == 0:
-            self._exit()
+            self._exit(args)
         else:
             self._show_screen() # thought: keep screen object, not only class? Both here and in left/right (needs new screen method for redraw)
 
@@ -94,7 +94,7 @@ class ScreenManager:
             if command == ScreenCommand.SHOW:
                 return self._show(args)
             if command == ScreenCommand.BACK:
-                return self._back()
+                return self._back(args)
             if command == ScreenCommand.PREV:
                 return self._prev()
             if command == ScreenCommand.NEXT:
@@ -102,7 +102,10 @@ class ScreenManager:
         else:
             self._refresh()
 
-    def _exit(self):
+    def _exit(self, code=0):
+        suffix = " ({})".format(code) if code != 0 else ""
         self._draw.text((100, 50), "Bye!", fill=1)
+        if code != 0:
+            self._draw.text((64, 50), "({})".format(code), fill=1)
         self._refresh()
-        sys.exit(0)
+        sys.exit(code)
