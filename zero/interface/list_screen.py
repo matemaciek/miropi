@@ -1,7 +1,7 @@
-from interface.buttons import Command
-import interface.patch_screen
 import interface.ui
 import interface.icons
+from interface.buttons import Command
+from interface.ui import ScreenCommand
 
 FONT_W = 6
 FONT_H = 9
@@ -9,18 +9,20 @@ FONT_H = 9
 class ListScreen(interface.ui.Screen):
     def _start(self):
         self._icons = interface.icons.Icons()
-        self._title = "Inputs"
         self._cursor = 0
-        self._items = [input.port for input in self._model.inputs]
+        (self._title, self._items) = self._fill()
         self._N = len(self._items)
         self._draw_all()
+
+    def _fill(self):
+        return NotImplemented
 
     def click(self, command):
         if command == Command.UP:
             return self._move_cursor(-1)
         if command == Command.DOWN:
             return self._move_cursor(1)
-        return interface.patch_screen.PatchScreen
+        return super().click(command)
 
     def _move_cursor(self, delta):
         self._cursor = (self._cursor + delta) % self._N
@@ -51,3 +53,12 @@ class ListScreen(interface.ui.Screen):
         self._draw.rectangle((0, self._H - FONT_H, len(index_str)*FONT_W, self._H), fill=1)
         self._draw.text((1, self._H - FONT_H - 1), index_str, fill=0)
 
+
+class InputListScreen(ListScreen):
+    def _fill(self):
+        return ("Inputs",[input.port for input in self._model.inputs])
+
+
+class OutputListScreen(ListScreen):
+    def _fill(self):
+        return ("Outputs", [output.port for output in self._model.outputs])

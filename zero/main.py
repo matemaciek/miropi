@@ -4,13 +4,14 @@ import interface.buttons
 from interface.buttons import Command
 import interface.ui
 import interface.logo_screen
+import interface.list_screen
 import midi.connection
 import midi.connections
 
 async def main():
     loop = asyncio.get_event_loop()
     model = midi.connections.Connections()
-    screen = interface.ui.ScreenManager(model, interface.logo_screen.LogoScreen)
+    screen = interface.ui.ScreenManager(model, [interface.list_screen.InputListScreen, interface.logo_screen.LogoScreen])
     buttons = interface.buttons.Buttons(
         {
             Command.LEFT: 27,
@@ -26,4 +27,6 @@ async def main():
     while True:
         await asyncio.sleep(60)
 
+#import logging
+#logging.basicConfig(level=logging.DEBUG)
 asyncio.run(main(), debug=True)

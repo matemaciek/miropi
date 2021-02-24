@@ -1,7 +1,9 @@
+import PIL.Image
+
 import interface.icons
 import interface.ui
-import interface.logo_screen
 from interface.buttons import Command
+from interface.ui import ScreenCommand
 
 # assumption: W >= H
 #
@@ -21,7 +23,7 @@ class Tile:
 class PatchScreen(interface.ui.Screen):
     def _start(self):
         self._cursor = (0, 0)
-        self._cursor_visible = True
+        self._cursor_visible = False
         self._icons = interface.icons.Icons(self._H / max(self._model.M, self._model.N))
         self.R_W = self._model.M * self._icons.size
         self.L_W = self._W - self.R_W
@@ -29,6 +31,10 @@ class PatchScreen(interface.ui.Screen):
         self._draw_all_tiles()
 
     def click(self, command):
+        if command == Command.ENTER:
+            return self._click_cursor()
+        if not self._cursor_visible:
+            return super().click(command)
         if command == Command.LEFT:
             return self._move_cursor((-1, 0))
         if command == Command.RIGHT:
@@ -37,8 +43,6 @@ class PatchScreen(interface.ui.Screen):
             return self._move_cursor((0, -1))
         if command == Command.DOWN:
             return self._move_cursor((0, 1))
-        if command == Command.ENTER:
-            return self._click_cursor()
         if command == Command.BACK:
             return self._back_cursor()
 
@@ -67,8 +71,6 @@ class PatchScreen(interface.ui.Screen):
         self._draw_affected_tiles(self._cursor)
 
     def _back_cursor(self):
-        if not self._cursor_visible:
-            return interface.logo_screen.LogoScreen
         self._hide_cursor()
 
     def _show_cursor(self):
@@ -87,6 +89,7 @@ class PatchScreen(interface.ui.Screen):
         #draw.line((self.L_W - 1, 0, self.L_W - 1, self.R_W), fill=1)
         #draw.line((self.L_W - 1, self.R_W, self.L_W + self.R_W, self.R_W), fill=1)
         if not self._cursor_visible:
+            self._draw_image(PIL.Image.open("miropi.png").convert("1").resize((int(self._W/2), int(self._H/2))), (0, int(self._H/4)))
             return
         max_l = int(self.L_W/6)
         input_name = self._model.input_name(i)
@@ -127,9 +130,6 @@ class PatchScreen(interface.ui.Screen):
 
     def _draw_icon(self, name, coord):
         self._draw_image(self._icons.icon(name), coord)
-
-    def _draw_image(self, image, coord):
-        self._image.paste(image, coord)
 
     def _state(self, coord):
         return "on" if self._model.connected(coord) else "off"
