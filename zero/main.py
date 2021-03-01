@@ -14,12 +14,13 @@ async def main():
     screen = interface.ui.ScreenManager(model, [interface.logo_screen.LogoScreen, interface.debug_screen.DebugScreen])
     buttons = interface.buttons.Buttons(
         {
-            Command.LEFT: 27,
-            Command.RIGHT: 11,
-            Command.UP: 9,
-            Command.DOWN: 22,
-            Command.ENTER: 10,
-            Command.BACK: 17,
+            Command.LEFT: 13,
+            Command.RIGHT: 6,
+            Command.UP: 26,
+            Command.DOWN: 19,
+            Command.ENTER: 9,
+            Command.BACK: 11,
+            Command.OPTION: 5,
         },
         screen.click
     )
