@@ -73,6 +73,7 @@ class IOListScreen(ListScreen):
     def click(self, command):
         if command == Command.ENTER:
             self._list_model()[self._cursor].toggle()
+            self._model.save()
             self._draw_icon()
             return
         return super().click(command)

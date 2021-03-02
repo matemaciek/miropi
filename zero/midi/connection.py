@@ -36,14 +36,20 @@ class Connection:
         else:
             self.connect(output)
 
+    def sinks(self):
+        return len(self._outputs)
+
+    def dump(self):
+        return [k for k in self._outputs.keys()]
+
     def connect(self, output):
-        if len(self._outputs) == 0:
+        if self.sinks() == 0:
             self._start_reader()
         self._outputs[output.id] = Writer(output)
 
     def disconnect(self, output):
         del self._outputs[output.id]
-        if len(self._outputs) == 0:
+        if self.sinks() == 0:
             self._stop_reader()
 
     def _start_reader(self):

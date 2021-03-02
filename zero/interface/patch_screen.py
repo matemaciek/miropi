@@ -72,6 +72,7 @@ class PatchScreen(interface.ui.Screen):
 
     def _back_cursor(self):
         self._hide_cursor()
+        self._model.save()
 
     def _show_cursor(self):
         self._cursor_visible = True
