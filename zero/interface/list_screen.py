@@ -10,7 +10,7 @@ class ListScreen(interface.ui.Screen):
     def _start(self):
         self._icons = interface.icons.Icons()
         self._cursor = 0
-        (self._title, self._items) = self._fill()
+        self._items = self._fill()
         self._N = len(self._items)
         self._draw_all()
 
@@ -33,10 +33,8 @@ class ListScreen(interface.ui.Screen):
 
     def _draw_all(self):
         self._draw.rectangle((0, 0, self._W, self._H), fill=0)
-        for x in [0, self._W - 1]:
-            self._draw.line([x, 0, x, self._H], fill=1)
         dy = int(self._H/3)
-        for y in [0, dy, 2*dy, self._H - 1]:
+        for y in [dy, 2*dy]:
             self._draw.line([0, y, self._W, y], fill=1)
 
         text_offset = 19
@@ -48,13 +46,9 @@ class ListScreen(interface.ui.Screen):
                 self._draw.text((text_offset, (i + 1)*dy + FONT_H), self._items[index][n:], fill=1)
 
         self._draw_icon()
-        
-        self._draw.rectangle((0, 0, len(self._title)*FONT_W, FONT_H), fill=1)
-        self._draw.text((1, 0), self._title, fill=0)
-        
-        index_str = "{}/{}".format(self._cursor + 1, self._N)
-        self._draw.rectangle((0, self._H - FONT_H, len(index_str)*FONT_W, self._H), fill=1)
-        self._draw.text((1, self._H - FONT_H - 1), index_str, fill=0)
+
+    def _subtitle(self):
+        return "{}/{}".format(self._cursor + 1, self._N)
 
     def _draw_icon(self):
         self._draw_image(self._icons.icon(self._icon()), (2, int(self._H/2) - 8))
@@ -64,11 +58,8 @@ class IOListScreen(ListScreen):
     def _list_model(self):
         return NotImplemented
 
-    def _list_title(self):
-        return NotImplemented
-
     def _fill(self):
-        return (self._list_title(),[input.port for input in self._list_model()])
+        return [input.port for input in self._list_model()]
 
     def click(self, command):
         if command == Command.ENTER:
@@ -86,7 +77,7 @@ class InputListScreen(IOListScreen):
     def _list_model(self):
         return self._model.inputs
 
-    def _list_title(self):
+    def _title(self):
         return "Inputs"
 
 
@@ -94,5 +85,5 @@ class OutputListScreen(IOListScreen):
     def _list_model(self):
         return self._model.outputs
 
-    def _list_title(self):
+    def _title(self):
         return "Outputs"

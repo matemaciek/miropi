@@ -87,8 +87,6 @@ class PatchScreen(interface.ui.Screen):
     def _draw_desc(self):
         (i, j) = self._cursor
         self._draw.rectangle((0, 0, self.L_W - 1, self._H), fill=0)
-        #draw.line((self.L_W - 1, 0, self.L_W - 1, self.R_W), fill=1)
-        #draw.line((self.L_W - 1, self.R_W, self.L_W + self.R_W, self.R_W), fill=1)
         if not self._cursor_visible:
             self._draw_image(PIL.Image.open("miropi.png").convert("1").resize((int(self._W/2), int(self._H/2))), (0, int(self._H/4)))
             return

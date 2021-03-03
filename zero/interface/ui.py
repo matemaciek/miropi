@@ -18,6 +18,9 @@ class ScreenCommand(Enum):
 WIDTH  = 128
 HEIGHT = 64
 
+FONT_W = 6
+FONT_H = 9
+
 class Screen(abc.ABC):
     def __init__(self, model, image, draw):
         self._model = model
@@ -29,8 +32,28 @@ class Screen(abc.ABC):
     def _draw_image(self, image, coord):
         self._image.paste(image, coord)
 
+    def draw_title(self):
+        title = self._title()
+        subtitle = self._subtitle()
+        if title != NotImplemented:
+            for x in [0, self._W - 1]:
+                self._draw.line([x, 0, x, self._H], fill=1)
+            for y in [0, self._H - 1]:
+                self._draw.line([0, y, self._W, y], fill=1)
+            self._draw.rectangle((0, 0, len(title)*FONT_W, FONT_H), fill=1)
+            self._draw.text((1, 0), title, fill=0)
+        if subtitle != NotImplemented:
+            self._draw.rectangle((0, self._H - FONT_H, len(subtitle)*FONT_W, self._H), fill=1)
+            self._draw.text((1, self._H - FONT_H - 1), subtitle, fill=0)
+
     @abc.abstractmethod
     def _start(self):
+        return NotImplemented
+
+    def _title(self):
+        return NotImplemented
+
+    def _subtitle(self):
         return NotImplemented
 
     @abc.abstractmethod
@@ -84,6 +107,7 @@ class ScreenManager:
         self._refresh()
 
     def _refresh(self):
+        self._screen.draw_title()
         self._display.image(self._image)
         self._display.show()
 
