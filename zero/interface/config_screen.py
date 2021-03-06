@@ -1,0 +1,153 @@
+from enum import Enum
+
+import interface.ui
+import interface.icons
+from interface.buttons import Command
+from interface.ui import ScreenCommand
+
+class ConfigScreen(interface.ui.Screen):
+    def _start(self):
+        self._icons = interface.icons.Icons()
+        self._cursor = 0
+        self._N = self._len()
+        self._draw_all()
+
+    def _len(self):
+        return NotImplemented
+
+    def _icon(self, index):
+        return NotImplemented
+
+    def _change(self, index, delta):
+        return NotImplemented
+
+    def _desc(self):
+        return NotImplemented
+
+    def _inactive(self):
+        return []
+
+    def click(self, command):
+        if command == Command.LEFT:
+            cursor = self._prev_active()
+            if cursor is not None:
+                return self._move_cursor(cursor)
+        if command == Command.RIGHT:
+            cursor = self._next_active()
+            if cursor is not None:
+                return self._move_cursor(cursor)
+        if command == Command.UP:
+            self._change(self._cursor, 1)
+            self._draw_all()
+            return
+        if command == Command.DOWN:
+            self._change(self._cursor, -1)
+            self._draw_all()
+            return
+        return super().click(command)
+
+    def _next_active(self):
+        cursor = self._cursor + 1
+        while cursor < self._N and cursor in self._inactive():
+            cursor += 1
+        if cursor < self._N:
+            return cursor
+
+    def _prev_active(self):
+        cursor = self._cursor - 1
+        while cursor >= 0 and cursor in self._inactive():
+            cursor -= 1
+        if cursor >= 0:
+            return cursor
+
+    def _move_cursor(self, dst):
+        self._cursor = dst
+        self._draw_all()
+
+    def _draw_all(self):
+        self._draw.rectangle((0, 0, self._W, self._H), fill=0)
+        for i in range(self._N):
+            self._draw_icon(i)
+        self._draw_icon_at("up", self._cursor, -1)
+        self._draw_icon_at("down", self._cursor, 1)
+        for i in self._inactive():
+            self._grey_out(i)
+
+    def _draw_icon(self, index):
+        self._draw_icon_at(self._icon(index), index, 0)
+
+    def _coords_for_icon(self, i, j):
+        return (int(self._W/2 - 16*(self._N/2 - i)), int(self._H/2 + 16*j - 8))
+
+    def _grey_out(self, index):
+        (x, y) = self._coords_for_icon(index, 0)
+        for i in range(9):
+            self._draw.line((x+2*i, y, x+16, y+16-2*i), fill=0)
+            self._draw.line((x, y+2*i, x+16-2*i, y+16), fill=0)
+
+    def _draw_icon_at(self, icon, i, j):
+        self._draw_image(self._icons.icon(icon), self._coords_for_icon(i, j))
+
+class NoteMode(Enum):
+    ALL = 0
+    ABOVE = 1
+    BELOW = 2
+    NONE = 3
+    
+    def succ(self):
+        return NoteMode((self.value + 1) % len(NoteMode))
+
+    def pred(self):
+        return NoteMode((self.value - 1) % len(NoteMode))
+
+NOTES = ["C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#", "B "]
+
+class NoteFilterScreen(ConfigScreen):
+    def _start(self):
+        self._mode = NoteMode.ALL
+        self._note = 0
+        self._octave = 5
+        super()._start()
+
+    def _title(self):
+        return "Note filter"
+
+    def _note_str(self):
+        return "{}{}".format(NOTES[self._note], self._octave - 1)
+
+    def _subtitle(self):
+        if self._mode == NoteMode.ALL:
+            return "Pass all notes"
+        if self._mode == NoteMode.ABOVE:
+            return "Pass from {} up".format(self._note_str())
+        if self._mode == NoteMode.BELOW:
+            return "Block from {} up".format(self._note_str())
+        if self._mode == NoteMode.NONE:
+            return "Block all notes"
+
+    def _change(self, index, delta):
+        if index == 0:
+            self._mode = self._mode.succ() if delta ==1 else self._mode.pred()
+            return
+        if index == 1:
+            self._note = (self._note + delta) % len(NOTES)
+            return
+        if index == 2:
+            self._octave = (self._octave + delta) % 11
+            return
+
+    def _len(self):
+        return 3
+
+    def _icon(self, index):
+        if index == 0:
+            return "note_mode_{}".format(self._mode.value)
+        if index == 1:
+            return "note_{}".format(self._note)
+        if index == 2:
+            return self._octave - 1
+
+    def _inactive(self):
+        if self._mode in [NoteMode.ALL, NoteMode.NONE]:
+            return [1, 2]
+        return super()._inactive()

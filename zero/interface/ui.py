@@ -40,10 +40,10 @@ class Screen(abc.ABC):
                 self._draw.line([x, 0, x, self._H], fill=1)
             for y in [0, self._H - 1]:
                 self._draw.line([0, y, self._W, y], fill=1)
-            self._draw.rectangle((0, 0, len(title)*FONT_W, FONT_H), fill=1)
+            self._draw.rectangle((0, 0, len(title)*FONT_W + 1, FONT_H), fill=1)
             self._draw.text((1, 0), title, fill=0)
         if subtitle != NotImplemented:
-            self._draw.rectangle((0, self._H - FONT_H, len(subtitle)*FONT_W, self._H), fill=1)
+            self._draw.rectangle((0, self._H - FONT_H, len(subtitle)*FONT_W + 1, self._H), fill=1)
             self._draw.text((1, self._H - FONT_H - 1), subtitle, fill=0)
 
     @abc.abstractmethod

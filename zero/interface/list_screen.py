@@ -17,7 +17,7 @@ class ListScreen(interface.ui.Screen):
     def _fill(self):
         return NotImplemented
 
-    def _icon(self, index):
+    def _icon(self):
         return NotImplemented
 
     def click(self, command):
