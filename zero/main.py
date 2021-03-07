@@ -1,4 +1,6 @@
 import asyncio
+import luma.oled.device
+import luma.core.interface.serial
 
 import interface.buttons
 from interface.buttons import Command
@@ -10,17 +12,19 @@ import midi.connections
 
 async def main():
     loop = asyncio.get_event_loop()
+    device = luma.oled.device.sh1106(luma.core.interface.serial.spi())
     model = midi.connections.Connections()
-    screen = interface.ui.ScreenManager(model, [interface.logo_screen.LogoScreen, interface.debug_screen.DebugScreen])
+    screen = interface.ui.ScreenManager(device, model, [interface.logo_screen.LogoScreen, interface.debug_screen.DebugScreen])
     buttons = interface.buttons.Buttons(
         {
-            Command.LEFT: 13,
-            Command.RIGHT: 6,
-            Command.UP: 26,
-            Command.DOWN: 19,
-            Command.ENTER: 9,
-            Command.BACK: 11,
-            Command.OPTION: 5,
+            26: Command.LEFT,
+            5: Command.RIGHT,
+            19: Command.UP,
+            6: Command.DOWN,
+            13: Command.ENTER,
+            20: Command.ENTER,
+            16: Command.BACK,
+            21: Command.BACK,
         },
         screen.click
     )

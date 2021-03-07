@@ -1,4 +1,3 @@
-import board
 import asyncio
 from gpiozero import Button
 from enum import Enum
@@ -10,13 +9,12 @@ class Command(Enum):
     DOWN = 3
     ENTER = 4
     BACK = 5
-    OPTION = 6
 
 class Buttons:
     def __init__(self, mapping, action):
         self._buttons = []
-        for command in mapping.keys():
-            self._connect(mapping[command], command, action)
+        for key in mapping.keys():
+            self._connect(key, mapping[key], action)
 
     def _connect(self, pin, command, action):
         button = Button(pin)

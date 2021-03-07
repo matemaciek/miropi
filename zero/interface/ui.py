@@ -1,6 +1,3 @@
-import adafruit_ssd1306
-import board
-import busio
 import abc
 import sys
 import PIL.Image
@@ -14,9 +11,6 @@ class ScreenCommand(Enum):
     BACK = 1
     PREV = 2
     NEXT = 3
-
-WIDTH  = 128
-HEIGHT = 64
 
 FONT_W = 6
 FONT_H = 9
@@ -67,11 +61,10 @@ class Screen(abc.ABC):
         return NotImplemented
 
 class ScreenManager:
-    def __init__(self, model, start_screens):
+    def __init__(self, device, model, start_screens):
         self._model = model
-        self._i2c = busio.I2C(board.SCL, board.SDA)
-        self._display = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, self._i2c)
-        self._image = PIL.Image.new("1", (self._display.width, self._display.height))
+        self._display = device
+        self._image = PIL.Image.new(device.mode, device.size)
         self._draw = PIL.ImageDraw.Draw(self._image)
         self._screens = []
         self._indexes = []
@@ -102,13 +95,13 @@ class ScreenManager:
 
     def _show_screen(self):
         screen = self._screens[-1][self._indexes[-1]]
-        self._draw.rectangle((0, 0, WIDTH, HEIGHT), fill=0)
+        self._draw.rectangle((0, 0, self._display.width, self._display.height), fill=0)
         self._screen = screen(self._model, self._image, self._draw)
         self._refresh()
 
     def _refresh(self):
         self._screen.draw_title()
-        self._display.image(self._image)
+        self._display.display(self._image)
         self._display.show()
 
     def click(self, action):
