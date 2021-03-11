@@ -126,16 +126,14 @@ class ScreenManager:
             virtual.display(merged)
             (x, y) = old_pos
             (new_x, new_y) = new_pos
-            dx = int((new_x - x) / 4)
-            dy = int((new_y - y) / 4)
+            dx = int((new_x - x) / 5)
+            dy = int((new_y - y) / 5)
             while (x, y) != new_pos:
                 with regulator:
                     virtual.set_position((x, y))
                 x = max(0, min(x + dx, max(new_x, x)))
                 y = max(0, min(y + dy, max(new_y, y)))
-                print((x, y))
         self._display.display(self._screen.image)
-        self._display.show()
 
     def click(self, action):
         click_result = self._screen.click(action)
