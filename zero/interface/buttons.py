@@ -23,8 +23,8 @@ class Buttons:
         button.when_pressed = lambda: _handle_button(command, action, loop)
 
 def _handle_button(command, action, loop):
-    asyncio.run_coroutine_threadsafe(_run_action(action, command), loop)
     print("Button press:", command)
+    loop.call_soon_threadsafe(asyncio.ensure_future, _run_action(action, command))
 
 async def _run_action(action, command):
     action(command)

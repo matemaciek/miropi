@@ -11,7 +11,6 @@ import midi.connection
 import midi.connections
 
 async def main():
-    loop = asyncio.get_event_loop()
     device = luma.oled.device.sh1106(luma.core.interface.serial.spi())
     model = midi.connections.Connections()
     screen = interface.ui.ScreenManager(device, model, [interface.logo_screen.LogoScreen, interface.debug_screen.DebugScreen])

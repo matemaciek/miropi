@@ -3,6 +3,8 @@ import sys
 import PIL.Image
 import PIL.ImageDraw
 from enum import Enum
+from luma.core.virtual import viewport
+from luma.core.sprite_system import framerate_regulator
 
 from interface.buttons import Command
 
@@ -15,16 +17,18 @@ class ScreenCommand(Enum):
 FONT_W = 6
 FONT_H = 9
 
+regulator = framerate_regulator(fps=25)
+
 class Screen(abc.ABC):
-    def __init__(self, model, image, draw):
+    def __init__(self, model, mode, size):
         self._model = model
-        self._image = image
-        self._draw = draw
-        (self._W, self._H) = self._image.size
+        self.image = PIL.Image.new(mode, size)
+        self._draw = PIL.ImageDraw.Draw(self.image)
+        (self._W, self._H) = size
         self._start()
 
     def _draw_image(self, image, coord):
-        self._image.paste(image, coord)
+        self.image.paste(image, coord)
 
     def draw_title(self):
         title = self._title()
@@ -64,8 +68,7 @@ class ScreenManager:
     def __init__(self, device, model, start_screens):
         self._model = model
         self._display = device
-        self._image = PIL.Image.new(device.mode, device.size)
-        self._draw = PIL.ImageDraw.Draw(self._image)
+        self._screen = None
         self._screens = []
         self._indexes = []
         self._show(start_screens)
@@ -73,7 +76,7 @@ class ScreenManager:
     def _show(self, screens):
         self._screens.append(screens)
         self._indexes.append(0)
-        self._show_screen()
+        self._show_screen(0, 1)
 
     def _back(self, args):
         self._screens.pop()
@@ -81,7 +84,7 @@ class ScreenManager:
         if len(self._screens) == 0:
             self._exit(args)
         else:
-            self._show_screen() # thought: keep screen object, not only class? Both here and in left/right (needs new screen method for redraw)
+            self._show_screen(0, -1) # thought: keep screen object, not only class? Both here and in left/right (needs new screen method for redraw)
 
     def _prev(self):
         self._move_screen(-1)
@@ -91,17 +94,47 @@ class ScreenManager:
 
     def _move_screen(self, delta):
         self._indexes[-1] = (self._indexes[-1] + delta) % len(self._screens[-1])
-        self._show_screen()
+        self._show_screen(delta, 0)
 
-    def _show_screen(self):
+    def _show_screen(self, xdir, ydir):
         screen = self._screens[-1][self._indexes[-1]]
-        self._draw.rectangle((0, 0, self._display.width, self._display.height), fill=0)
-        self._screen = screen(self._model, self._image, self._draw)
-        self._refresh()
+        old_image = PIL.Image.new(self._display.mode, self._display.size) if self._screen is None else self._screen.image
+        self._screen = screen(self._model, self._display.mode, self._display.size)
+        self._refresh(old_image, xdir, ydir)
 
-    def _refresh(self):
+    def _refresh(self, old_image=None, xdir=0, ydir=0):
         self._screen.draw_title()
-        self._display.display(self._image)
+        if old_image is not None:
+            xscale = 1 + abs(xdir)
+            yscale = 1 + abs(ydir)
+            viewport_w = xscale * self._display.width
+            viewport_h = yscale * self._display.height
+            merged = PIL.Image.new(self._display.mode, (viewport_w, viewport_h))
+            old_pos = (
+                int(xdir < 0) * self._display.width,
+                int(ydir < 0) * self._display.height
+            )
+            new_pos = (
+                int(xdir > 0) * self._display.width,
+                int(ydir > 0) * self._display.height
+            )
+            merged.paste(old_image, old_pos)
+            merged.paste(self._screen.image, new_pos)
+            #TODO: persistent viewport
+            virtual = viewport(self._display, width=viewport_w, height=viewport_h)
+            virtual.set_position(old_pos)
+            virtual.display(merged)
+            (x, y) = old_pos
+            (new_x, new_y) = new_pos
+            dx = int((new_x - x) / 4)
+            dy = int((new_y - y) / 4)
+            while (x, y) != new_pos:
+                with regulator:
+                    virtual.set_position((x, y))
+                x = max(0, min(x + dx, max(new_x, x)))
+                y = max(0, min(y + dy, max(new_y, y)))
+                print((x, y))
+        self._display.display(self._screen.image)
         self._display.show()
 
     def click(self, action):
@@ -121,8 +154,11 @@ class ScreenManager:
 
     def _exit(self, code=0):
         suffix = " ({})".format(code) if code != 0 else ""
-        self._draw.text((100, 50), "Bye!", fill=1)
+        image = self._screen.image
+        draw = PIL.ImageDraw.Draw(image)
+        draw.text((100, 50), "Bye!", fill=1)
         if code != 0:
-            self._draw.text((64, 50), "({})".format(code), fill=1)
-        self._refresh()
+            draw.text((64, 50), "({})".format(code), fill=1)
+        self._display.display(image)
+        self._display.show()
         sys.exit(code)
