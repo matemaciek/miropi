@@ -90,10 +90,15 @@ class ConfigScreen(interface.ui.Screen):
 NOTES = ["C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#", "B "]
 
 class NoteFilterScreen(ConfigScreen):
+    def __init__(self, connection, *args):
+        self._connection = connection
+        super().__init__(*args)
+
     def _start(self):
-        self._mode = NoteMode.ALL
-        self._note = 0
-        self._octave = 5
+        filter = self._model.filter(self._connection)
+        self._mode = filter.mode
+        self._note = filter.note % 12
+        self._octave = int(filter.note / 12)
         super()._start()
 
     def _title(self):
@@ -115,13 +120,11 @@ class NoteFilterScreen(ConfigScreen):
     def _change(self, index, delta):
         if index == 0:
             self._mode = self._mode.succ() if delta ==1 else self._mode.pred()
-            return
-        if index == 1:
+        elif index == 1:
             self._note = (self._note + delta) % len(NOTES)
-            return
-        if index == 2:
+        elif index == 2:
             self._octave = (self._octave + delta) % 11
-            return
+        self._model.set_filter(self._connection, self._mode, self._octave * 12 + self._note)
 
     def _len(self):
         return 3

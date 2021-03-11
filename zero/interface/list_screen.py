@@ -1,5 +1,7 @@
 import interface.ui
 import interface.icons
+import interface.config_screen
+
 from interface.buttons import Command
 from interface.ui import ScreenCommand
 
@@ -87,3 +89,22 @@ class OutputListScreen(IOListScreen):
 
     def _title(self):
         return "Outputs"
+
+
+class ConnectionScreen(ListScreen):
+    def _fill(self):
+        self._connections = self._model.connections()
+        return ["{}->{}".format(self._model.input_name_for_id(src), self._model.output_name_for_id(dst)) for (src, dst) in self._connections]
+
+    def click(self, command):
+        if command == Command.ENTER:
+            return (ScreenCommand.SHOW, [
+                lambda *args: interface.config_screen.NoteFilterScreen(self._connections[self._cursor], *args)
+            ])
+        return super().click(command)
+
+    def _icon(self):
+        return "note_mode_{}".format(self._model.filter(self._connections[self._cursor]).mode.value)
+
+    def _title(self):
+        return "Connections"

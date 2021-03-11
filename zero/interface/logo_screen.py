@@ -14,6 +14,7 @@ class LogoScreen(interface.ui.Screen):
         if command == Command.ENTER:
             return (ScreenCommand.SHOW, [
                 interface.patch_screen.PatchScreen,
+                interface.list_screen.ConnectionScreen,
                 interface.list_screen.InputListScreen,
                 interface.list_screen.OutputListScreen
             ])

@@ -12,13 +12,13 @@ class Writer:
         self.output = output
         self._output_port = mido.open_output(output.name)
         self.queue = asyncio.Queue()
-        self._filter = midi.filter.NoteFilter(midi.filter.NoteMode.ABOVE, 48)
+        self.filter = midi.filter.NoteFilter()
         self._worker_task = asyncio.create_task(self._worker())
 
     async def _worker(self):
         while True:
             msg = await self.queue.get()
-            filtered = self._filter.process(msg)
+            filtered = self.filter.process(msg)
             if filtered is not None:
                 print("Out:", self.output.id, filtered)
                 asyncio.create_task(_send(self._output_port, filtered))
@@ -36,6 +36,9 @@ class Connection:
 
     def connected(self, output):
         return output.id in self._outputs
+
+    def to(self, dst):
+        return self._outputs[dst]
 
     def toggle(self, output):
         if self.connected(output):
@@ -75,3 +78,6 @@ class Connection:
     def __del__(self):
         for output in list(self._outputs.values()):
             self.disconnect(output.output)
+
+    def outputs(self):
+        return self._outputs.keys()

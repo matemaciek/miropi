@@ -30,19 +30,19 @@ class NoteMode(Enum):
         return NoteMode((self.value - 1) % len(NoteMode))
 
 class NoteFilter(Filter):
-    def __init__(self, mode, note):
-        self._mode = mode
-        self._note = note
+    def __init__(self, mode=NoteMode.ALL, note=60):
+        self.mode = mode
+        self.note = note
 
     def types(self):
         return ['note_off', 'note_on', 'polytouch']
 
     def _process(self, msg):
-        if self._mode == NoteMode.ALL:
+        if self.mode == NoteMode.ALL:
             return msg
-        if self._mode == NoteMode.ABOVE:
-            return msg if msg.note >= self._note else None
-        if self._mode == NoteMode.BELOW:
-            return msg if msg.note < self._note else None
-        if self._mode == NoteMode.NONE:
+        if self.mode == NoteMode.ABOVE:
+            return msg if msg.note >= self.note else None
+        if self.mode == NoteMode.BELOW:
+            return msg if msg.note < self.note else None
+        if self.mode == NoteMode.NONE:
             return None

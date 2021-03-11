@@ -123,3 +123,23 @@ class Connections:
 
     def output_name(self, j):
         return self._enabled_outputs()[j].port
+
+    def input_name_for_id(self, id):
+        return next(p for p in self.inputs if p.id == id).port
+
+    def output_name_for_id(self, id):
+        return next(p for p in self.outputs if p.id == id).port
+
+    def connections(self):
+        result = []
+        for src in self._connections.keys():
+            result += [(src, dst) for dst in self._connections[src].outputs()]
+        return result
+
+    def filter(self, connection):
+        (src, dst) = connection
+        return self._connections[src].to(dst).filter
+
+    def set_filter(self, connection, mode, note):
+        (src, dst) = connection
+        self._connections[src].to(dst).filter = midi.filter.NoteFilter(mode, note)
