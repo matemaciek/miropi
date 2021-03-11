@@ -2,6 +2,8 @@ import asyncio
 import time
 import mido
 
+import midi.filter
+
 async def _send(port, msg):
     port.send(msg)
 
@@ -10,13 +12,18 @@ class Writer:
         self.output = output
         self._output_port = mido.open_output(output.name)
         self.queue = asyncio.Queue()
+        self._filter = midi.filter.NoteFilter(midi.filter.NoteMode.ABOVE, 48)
         self._worker_task = asyncio.create_task(self._worker())
 
     async def _worker(self):
         while True:
             msg = await self.queue.get()
-            #print("Out:", self.output.id, msg)
-            asyncio.create_task(_send(self._output_port, msg))
+            filtered = self._filter.process(msg)
+            if filtered is not None:
+                print("Out:", self.output.id, filtered)
+                asyncio.create_task(_send(self._output_port, filtered))
+            else:
+                print("Filtered:", self.output.id, msg)
 
     def __del__(self):
         self._worker_task.cancel()

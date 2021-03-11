@@ -1,9 +1,8 @@
-from enum import Enum
-
 import interface.ui
 import interface.icons
 from interface.buttons import Command
 from interface.ui import ScreenCommand
+from midi.filter import NoteMode
 
 class ConfigScreen(interface.ui.Screen):
     def _start(self):
@@ -87,18 +86,6 @@ class ConfigScreen(interface.ui.Screen):
 
     def _draw_icon_at(self, icon, i, j):
         self._draw_image(self._icons.icon(icon), self._coords_for_icon(i, j))
-
-class NoteMode(Enum):
-    ALL = 0
-    ABOVE = 1
-    BELOW = 2
-    NONE = 3
-    
-    def succ(self):
-        return NoteMode((self.value + 1) % len(NoteMode))
-
-    def pred(self):
-        return NoteMode((self.value - 1) % len(NoteMode))
 
 NOTES = ["C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#", "B "]
 
