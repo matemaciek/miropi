@@ -3,12 +3,14 @@ import PIL.Image
 import interface.ui
 import interface.patch_screen
 import interface.list_screen
+import interface.tools
 from interface.buttons import Command
 from interface.ui import ScreenCommand
 
 class LogoScreen(interface.ui.Screen):
     def _start(self):
-        self._draw_image(PIL.Image.open("miropi.png").convert("1"), (0, 0))
+        logo = interface.tools.resize_keep_ar(PIL.Image.open("miropi.png").convert(self.image.mode), self.image.size)
+        self._draw_image(logo, (0, 0))
 
     def click(self, command):
         if command == Command.ENTER:

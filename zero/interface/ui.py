@@ -35,13 +35,13 @@ class Screen(abc.ABC):
         subtitle = self._subtitle()
         if title != NotImplemented:
             for x in [0, self._W - 1]:
-                self._draw.line([x, 0, x, self._H], fill=1)
+                self._draw.line([x, 0, x, self._H], fill="white")
             for y in [0, self._H - 1]:
-                self._draw.line([0, y, self._W, y], fill=1)
-            self._draw.rectangle((0, 0, len(title)*FONT_W + 1, FONT_H), fill=1)
+                self._draw.line([0, y, self._W, y], fill="white")
+            self._draw.rectangle((0, 0, len(title)*FONT_W + 1, FONT_H), fill="white")
             self._draw.text((1, 0), title, fill=0)
         if subtitle != NotImplemented:
-            self._draw.rectangle((0, self._H - FONT_H, len(subtitle)*FONT_W + 1, self._H), fill=1)
+            self._draw.rectangle((0, self._H - FONT_H, len(subtitle)*FONT_W + 1, self._H), fill="white")
             self._draw.text((1, self._H - FONT_H - 1), subtitle, fill=0)
 
     @abc.abstractmethod
@@ -154,9 +154,9 @@ class ScreenManager:
         suffix = " ({})".format(code) if code != 0 else ""
         image = self._screen.image
         draw = PIL.ImageDraw.Draw(image)
-        draw.text((100, 50), "Bye!", fill=1)
+        draw.text((100, 50), "Bye!", fill="white")
         if code != 0:
-            draw.text((64, 50), "({})".format(code), fill=1)
+            draw.text((64, 50), "({})".format(code), fill="white")
         self._display.display(image)
         self._display.show()
         sys.exit(code)

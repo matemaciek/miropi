@@ -8,7 +8,7 @@ import interface.logo_screen
 import interface.debug_screen
 import midi.connection
 import midi.connections
-import device
+import device_sh1106 as device
 
 async def main():
     model = midi.connections.Connections()

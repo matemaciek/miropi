@@ -4,9 +4,9 @@ from interface.ui import ScreenCommand
 
 class DebugScreen(interface.ui.Screen):
     def _start(self):
-        self._draw.text((10, 10), "Up:  shutdown", fill=1)
-        self._draw.text((10, 20), "Enter: reboot", fill=1)
-        self._draw.text((10, 30), "Down: restart", fill=1)
+        self._draw.text((10, 10), "Up:  shutdown", fill="white")
+        self._draw.text((10, 20), "Enter: reboot", fill="white")
+        self._draw.text((10, 30), "Down: restart", fill="white")
 
     def click(self, command):
         if command == Command.UP:

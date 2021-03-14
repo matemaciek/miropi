@@ -37,15 +37,15 @@ class ListScreen(interface.ui.Screen):
         self._draw.rectangle((0, 0, self._W, self._H), fill=0)
         dy = int(self._H/3)
         for y in [dy, 2*dy]:
-            self._draw.line([0, y, self._W, y], fill=1)
+            self._draw.line([0, y, self._W, y], fill="white")
 
         text_offset = 19
         n = int((self._W - text_offset)/FONT_W)
         for i in [-1, 0, 1]:
             index = self._cursor + i
             if 0 <= index < self._N:
-                self._draw.text((text_offset, (i + 1)*dy), self._items[index][:n], fill=1)
-                self._draw.text((text_offset, (i + 1)*dy + FONT_H), self._items[index][n:], fill=1)
+                self._draw.text((text_offset, (i + 1)*dy), self._items[index][:n], fill="white")
+                self._draw.text((text_offset, (i + 1)*dy + FONT_H), self._items[index][n:], fill="white")
 
         self._draw_icon()
 

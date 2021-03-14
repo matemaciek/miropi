@@ -1,6 +1,7 @@
 import PIL.Image
 
 import interface.icons
+import interface.tools
 import interface.ui
 from interface.buttons import Command
 from interface.ui import ScreenCommand
@@ -88,15 +89,15 @@ class PatchScreen(interface.ui.Screen):
         (i, j) = self._cursor
         self._draw.rectangle((0, 0, self.L_W - 1, self._H), fill=0)
         if not self._cursor_visible:
-            self._draw_image(PIL.Image.open("miropi.png").convert("1").resize((int(self._W/2), int(self._H/2))), (0, int(self._H/4)))
+            self._draw_image(interface.tools.resize_keep_ar(PIL.Image.open("miropi.png").convert(self.image.mode), (self.L_W - 1, self._H)), (0, 0))
             return
         max_l = int(self.L_W/6)
         input_name = self._model.input_name(i)
         output_name = self._model.output_name(j)
-        self._draw.text((0, 0), input_name[0:max_l-2]+"..", fill=1)
-        self._draw.text((0, 10), ".."+input_name[-max_l+2:], fill=1)
-        self._draw.text((0, 43), output_name[0:max_l-2]+"..", fill=1)
-        self._draw.text((0, 53), ".."+output_name[-max_l+2:], fill=1)
+        self._draw.text((0, 0), input_name[0:max_l-2]+"..", fill="white")
+        self._draw.text((0, 10), ".."+input_name[-max_l+2:], fill="white")
+        self._draw.text((0, 43), output_name[0:max_l-2]+"..", fill="white")
+        self._draw.text((0, 53), ".."+output_name[-max_l+2:], fill="white")
         icon = "connected" if self._model.connected(self._cursor) else "disconnected"
         self._draw_icon(icon, (int(self.L_W/2) - 8, int(self._H/2) - 8))
 
