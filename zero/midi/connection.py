@@ -20,10 +20,11 @@ class Writer:
             msg = await self.queue.get()
             filtered = self.filter.process(msg)
             if filtered is not None:
-                print("Out:", self.output.id, filtered)
+                #print("Out:", self.output.id, filtered)
                 asyncio.create_task(_send(self._output_port, filtered))
             else:
-                print("Filtered:", self.output.id, msg)
+                pass
+                #print("Filtered:", self.output.id, msg)
 
     def __del__(self):
         self._worker_task.cancel()
