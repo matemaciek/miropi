@@ -10,7 +10,7 @@ Work in progress. For now that's just a repository to track changes, but I plan 
 - USB hub, so you can connect multiple MIDI devices: either Raspberry Pi USB Hub Hat or a regular USB hub. Getting a independently powered one is recommended
 
 ## Software
-`pip3 install luma.oled mido python-rtmidi`
+`pip3 install luma.oled luma.lcd mido python-rtmidi`
 
 ## Interface versions
 Just some photos of different screens and buttons tested
