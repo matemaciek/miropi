@@ -3,7 +3,7 @@ import interface.icons
 import interface.config_screen
 
 from interface.buttons import Command
-from interface.ui import ScreenCommand
+from interface.ui import ScreenCommand, BKG
 
 FONT_W = 6
 FONT_H = 9
@@ -34,10 +34,8 @@ class ListScreen(interface.ui.Screen):
         self._draw_all()
 
     def _draw_all(self):
-        self._draw.rectangle((0, 0, self._W, self._H), fill=0)
+        self._draw.rectangle((0, 0, self._W, self._H), fill=BKG)
         dy = int(self._H/3)
-        for y in [dy, 2*dy]:
-            self._draw.line([0, y, self._W, y], fill="white")
 
         text_offset = 19
         n = int((self._W - text_offset)/FONT_W)

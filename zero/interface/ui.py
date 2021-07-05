@@ -2,6 +2,7 @@ import abc
 import sys
 import PIL.Image
 import PIL.ImageDraw
+import PIL.ImageFont
 from enum import Enum
 from luma.core.virtual import viewport
 from luma.core.sprite_system import framerate_regulator
@@ -14,8 +15,17 @@ class ScreenCommand(Enum):
     PREV = 2
     NEXT = 3
 
-FONT_W = 6
-FONT_H = 9
+BKG = (63, 63, 63)
+BKG_L = (127, 127, 127)
+BKG_D = (0, 0, 0)
+D = 4
+FNT_BASE = {
+    'font': PIL.ImageFont.truetype("arial.ttf", 16),
+}
+FNT = {
+    **FNT_BASE,
+    'fill': (127, 127, 255)
+}
 
 regulator = framerate_regulator(fps=25)
 
@@ -34,15 +44,29 @@ class Screen(abc.ABC):
         title = self._title()
         subtitle = self._subtitle()
         if title != NotImplemented:
-            for x in [0, self._W - 1]:
-                self._draw.line([x, 0, x, self._H], fill="white")
-            for y in [0, self._H - 1]:
-                self._draw.line([0, y, self._W, y], fill="white")
-            self._draw.rectangle((0, 0, len(title)*FONT_W + 1, FONT_H), fill="white")
-            self._draw.text((1, 0), title, fill=0)
+            self._draw.line([0, 0, self._W - 2, 0], fill=BKG_L)
+            self._draw.line([0, 0, 0, self._H - 2], fill=BKG_L)
+            self._draw.line([D - 1, D - 1, self._W - D - 1, D - 1], fill=BKG_D)
+            self._draw.line([D - 1, D - 1, D - 1, self._H - D - 1], fill=BKG_D)
+            self._draw.line([self._W - 1, self._H - 1, self._W - 1, 1], fill=BKG_D)
+            self._draw.line([self._W - 1, self._H - 1, 1, self._H - 1], fill=BKG_D)
+            self._draw.line([self._W - D, self._H - D, self._W - D, D], fill=BKG_L)
+            self._draw.line([self._W - D, self._H - D, D, self._H - D], fill=BKG_L)
+            (box_x, box_y) = self._draw.textsize(title, **FNT_BASE)
+            w = box_x + D
+            h = box_y + D
+            self._draw.rectangle((1, 1, w, h), fill=BKG)
+            self._draw.text((D//2, D//2), title, **FNT)
+            self._draw.line([D, h, w, h], fill=BKG_D)
+            self._draw.line([w, D, w, h], fill=BKG_D)
         if subtitle != NotImplemented:
-            self._draw.rectangle((0, self._H - FONT_H, len(subtitle)*FONT_W + 1, self._H), fill="white")
-            self._draw.text((1, self._H - FONT_H - 1), subtitle, fill=0)
+            (box_x, box_y) = self._draw.textsize(subtitle, **FNT_BASE)
+            w = box_x + 1 + D
+            h = self._H - box_y - D
+            self._draw.rectangle((1, h, w, self._H - 2), fill=BKG)
+            self._draw.text((D//2, h + D//2), subtitle, **FNT)
+            self._draw.line([D, h, w, h], fill=BKG_L)
+            self._draw.line([w, self._H - D, w, h], fill=BKG_D)
 
     @abc.abstractmethod
     def _start(self):
@@ -154,9 +178,9 @@ class ScreenManager:
         suffix = " ({})".format(code) if code != 0 else ""
         image = self._screen.image
         draw = PIL.ImageDraw.Draw(image)
-        draw.text((100, 50), "Bye!", fill="white")
+        draw.text((100, 50), "Bye!", **FNT)
         if code != 0:
-            draw.text((64, 50), "({})".format(code), fill="white")
+            draw.text((64, 50), "({})".format(code), **FNT)
         self._display.display(image)
         self._display.show()
         sys.exit(code)

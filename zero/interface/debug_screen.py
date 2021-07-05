@@ -1,12 +1,13 @@
 import interface.ui
 from interface.buttons import Command
-from interface.ui import ScreenCommand
+from interface.ui import ScreenCommand, BKG, FNT, FNT_BASE, D
 
 class DebugScreen(interface.ui.Screen):
     def _start(self):
-        self._draw.text((10, 10), "Up:  shutdown", fill="white")
-        self._draw.text((10, 20), "Enter: reboot", fill="white")
-        self._draw.text((10, 30), "Down: restart", fill="white")
+        self._draw.rectangle((0, 0, self._W, self._H), fill=BKG)
+        text = "Up:  shutdown\nEnter: reboot\nDown: restart"
+        (box_x, box_y) = self._draw.textsize(text, **FNT_BASE)
+        self._draw.text(((self._W - box_x)//2, (self._H - box_y)//2), text, **FNT)
 
     def click(self, command):
         if command == Command.UP:
