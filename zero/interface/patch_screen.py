@@ -1,8 +1,8 @@
 import interface.icons
 import interface.tools
 import interface.ui
+from interface.ui import FNT, FNT_BASE, D
 from interface.buttons import Command
-from interface.ui import ScreenCommand
 
 # assumption: W >= H
 #
@@ -89,15 +89,13 @@ class PatchScreen(interface.ui.Screen):
         if not self._cursor_visible:
             self._draw_image(interface.tools.resize_keep_ar(self._icons.icon("logo"), (self.L_W - 1, self._H)), (0, 0))
             return
-        max_l = int(self.L_W/6)
         input_name = self._model.input_name(i)
         output_name = self._model.output_name(j)
-        self._draw.text((0, 0), input_name[0:max_l-2]+"..", fill="white")
-        self._draw.text((0, 10), ".."+input_name[-max_l+2:], fill="white")
-        self._draw.text((0, 43), output_name[0:max_l-2]+"..", fill="white")
-        self._draw.text((0, 53), ".."+output_name[-max_l+2:], fill="white")
+        self._draw.text((D, D), input_name, **FNT)
+        (_, box_h) = self._draw.textsize(output_name, **FNT_BASE)
+        self._draw.text((D, self._H - box_h - D), output_name, **FNT)
         icon = "connected" if self._model.connected(self._cursor) else "disconnected"
-        self._draw_icon(icon, (int(self.L_W/2) - 8, int(self._H/2) - 8))
+        self._draw_icon(icon, (self.L_W//2 - 16, self._H//2 - 16))
 
     def _draw_cursor(self, cursor):
         self._draw_tile(cursor)

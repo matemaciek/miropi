@@ -1,7 +1,7 @@
 import interface.ui
 import interface.icons
 from interface.buttons import Command
-from interface.ui import ScreenCommand
+from interface.ui import BKG
 from midi.filter import NoteMode
 
 class ConfigScreen(interface.ui.Screen):
@@ -64,25 +64,18 @@ class ConfigScreen(interface.ui.Screen):
         self._draw_all()
 
     def _draw_all(self):
-        self._draw.rectangle((0, 0, self._W, self._H), fill=0)
+        self._draw.rectangle((0, 0, self._W, self._H), fill=BKG)
         for i in range(self._N):
-            self._draw_icon(i)
+            if not i in self._inactive():
+                self._draw_icon(i)
         self._draw_icon_at("up", self._cursor, -1)
         self._draw_icon_at("down", self._cursor, 1)
-        for i in self._inactive():
-            self._grey_out(i)
 
     def _draw_icon(self, index):
         self._draw_icon_at(self._icon(index), index, 0)
 
     def _coords_for_icon(self, i, j):
-        return (int(self._W/2 - 16*(self._N/2 - i)), int(self._H/2 + 16*j - 8))
-
-    def _grey_out(self, index):
-        (x, y) = self._coords_for_icon(index, 0)
-        for i in range(9):
-            self._draw.line((x+2*i, y, x+16, y+16-2*i), fill=0)
-            self._draw.line((x, y+2*i, x+16-2*i, y+16), fill=0)
+        return (int(self._W/2 - 32*(self._N/2 - i)), int(self._H/2 + 32*j - 16))
 
     def _draw_icon_at(self, icon, i, j):
         self._draw_image(self._icons.icon(icon), self._coords_for_icon(i, j))
