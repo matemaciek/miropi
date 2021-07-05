@@ -1,8 +1,14 @@
 import PIL.Image
+import PIL.ImageOps
 
 def _compile(data, size, invert):
     if type(data) is dict:
         return {k:_compile(v, size, invert) for (k, v) in data.items()}
+    if data[-4:] == ".png":
+        im = PIL.Image.open("icons/" + data)
+        if not invert:
+            return PIL.Image.open("icons/" + data)
+        return PIL.ImageOps.invert(im.convert('RGB'))
     if invert:
         byte_array = bytearray(data)
         for index in range(len(byte_array)):
@@ -30,6 +36,7 @@ class Icons:
         return self._tiles[tile.invert][tile.state][tile.state_h][tile.state_v]
 
 _raw_icons = {
+    "logo": "miropi.png",
     -1:
         b"\x00\x00"+
         b"\x00\xC0"+
@@ -685,150 +692,44 @@ _raw_tiles = {
     16: {
         "off": {
             "h": {
-                "v":
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00",
-                "V":
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"
+                "v": "16-off-h-v.png",
+                "V": "16-off-h-V.png"
             },
             "H": {
-                "v":
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\xFF\xFF"+
-                    b"\xFF\xFF"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00",
-                "V":
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\xFF\xFF"+
-                    b"\xFF\xFF"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"
+                "v": "16-off-H-v.png",
+                "V": "16-off-H-V.png"
             }
         },
         "on": {
             "h": {
-                "v":
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\xFF"+
-                    b"\x01\xFF"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00",
-                "V":
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\xFF"+
-                    b"\x01\xFF"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"
+                "v": "16-on-h-v.png",
+                "V": "16-on-h-V.png"
             },
             "H": {
-                "v":
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\xFF\xFF"+
-                    b"\xFF\xFF"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00"+
-                    b"\x00\x00",
-                "V":
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\xFF\xFF"+
-                    b"\xFF\xFF"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"+
-                    b"\x01\x80"
+                "v": "16-on-H-v.png",
+                "V": "16-on-H-V.png"
+            }
+        }
+    },
+    32: {
+        "off": {
+            "h": {
+                "v": "32-off-h-v.png",
+                "V": "32-off-h-V.png"
+            },
+            "H": {
+                "v": "32-off-H-v.png",
+                "V": "32-off-H-V.png"
+            }
+        },
+        "on": {
+            "h": {
+                "v": "32-on-h-v.png",
+                "V": "32-on-h-V.png"
+            },
+            "H": {
+                "v": "32-on-H-v.png",
+                "V": "32-on-H-V.png"
             }
         }
     }

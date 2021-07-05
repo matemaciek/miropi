@@ -1,5 +1,3 @@
-import PIL.Image
-
 import interface.icons
 import interface.tools
 import interface.ui
@@ -89,7 +87,7 @@ class PatchScreen(interface.ui.Screen):
         (i, j) = self._cursor
         self._draw.rectangle((0, 0, self.L_W - 1, self._H), fill=0)
         if not self._cursor_visible:
-            self._draw_image(interface.tools.resize_keep_ar(PIL.Image.open("miropi.png").convert(self.image.mode), (self.L_W - 1, self._H)), (0, 0))
+            self._draw_image(interface.tools.resize_keep_ar(self._icons.icon("logo"), (self.L_W - 1, self._H)), (0, 0))
             return
         max_l = int(self.L_W/6)
         input_name = self._model.input_name(i)
