@@ -3,10 +3,9 @@ import interface.icons
 import interface.config_screen
 
 from interface.buttons import Command
-from interface.ui import ScreenCommand, BKG
+from interface.ui import BKG_D, BKG_L, FNT, FNT_BKG, ScreenCommand, BKG, D
 
-FONT_W = 6
-FONT_H = 9
+VISIBLE = 5
 
 class ListScreen(interface.ui.Screen):
     def _start(self):
@@ -35,15 +34,16 @@ class ListScreen(interface.ui.Screen):
 
     def _draw_all(self):
         self._draw.rectangle((0, 0, self._W, self._H), fill=BKG)
-        dy = int(self._H/3)
+        dy = self._H//VISIBLE
+        for (dir, c) in [(-1, BKG_L), (1, BKG_D)]:
+            h = (self._H + dir*(dy + D))//2
+            self._draw.line([D, h, self._W - D, h], fill=c)
 
-        text_offset = 19
-        n = int((self._W - text_offset)/FONT_W)
-        for i in [-1, 0, 1]:
-            index = self._cursor + i
+        for i in range(VISIBLE):
+            offset = i - VISIBLE//2
+            index = self._cursor + offset
             if 0 <= index < self._N:
-                self._draw.text((text_offset, (i + 1)*dy), self._items[index][:n], fill="white")
-                self._draw.text((text_offset, (i + 1)*dy + FONT_H), self._items[index][n:], fill="white")
+                self._draw.text((2*D, i*dy + D), self._items[index], **(FNT if offset == 0 else FNT_BKG))
 
         self._draw_icon()
 
@@ -51,7 +51,7 @@ class ListScreen(interface.ui.Screen):
         return "{}/{}".format(self._cursor + 1, self._N)
 
     def _draw_icon(self):
-        self._draw_image(self._icons.icon(self._icon()), (2, int(self._H/2) - 8))
+        self._draw_image(self._icons.icon(self._icon()), (self._W - 32 - 2*D, self._H//2 - 16))
 
 
 class IOListScreen(ListScreen):
@@ -92,7 +92,7 @@ class OutputListScreen(IOListScreen):
 class ConnectionScreen(ListScreen):
     def _fill(self):
         self._connections = self._model.connections()
-        return ["{}->{}".format(self._model.input_name_for_id(src), self._model.output_name_for_id(dst)) for (src, dst) in self._connections]
+        return ["{}\n{}".format(self._model.input_name_for_id(src), self._model.output_name_for_id(dst)) for (src, dst) in self._connections]
 
     def click(self, command):
         if command == Command.ENTER:

@@ -26,6 +26,10 @@ FNT = {
     **FNT_BASE,
     'fill': (127, 127, 255)
 }
+FNT_BKG = {
+    **FNT_BASE,
+    'fill': BKG_L
+}
 
 regulator = framerate_regulator(fps=25)
 
