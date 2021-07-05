@@ -564,40 +564,8 @@ _raw_icons = {
         b"\x00\x1E"+
         b"\x00\x0F"+
         b"\x00\x03",
-    "checked":
-        b"\xFF\xFF"+
-        b"\xFF\xFF"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x0B"+
-        b"\xC0\x1B"+
-        b"\xC0\x3B"+
-        b"\xC0\x73"+
-        b"\xD0\xE3"+
-        b"\xD9\xC3"+
-        b"\xDF\x83"+
-        b"\xCF\x03"+
-        b"\xC6\x03"+
-        b"\xC0\x03"+
-        b"\xFF\xFF"+
-        b"\xFF\xFF",
-    "unchecked":
-        b"\xFF\xFF"+
-        b"\xFF\xFF"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xC0\x03"+
-        b"\xFF\xFF"+
-        b"\xFF\xFF"
+    "checked": "checked.png",
+    "unchecked": "unchecked.png"
 }
 
 _raw_tiles = {
@@ -670,22 +638,22 @@ _raw_tiles = {
     8: {
         "off": {
             "h": {
-                "v": b"\x00\x00\x00\x00\x00\x00\x00\x00",
-                "V": b"\x18\x18\x18\x18\x18\x18\x18\x18"
+                "v": "8-off-h-v.png",
+                "V": "8-off-h-V.png"
             },
             "H": {
-                "v": b"\x00\x00\x00\xFF\xFF\x00\x00\x00",
-                "V": b"\x18\x00\x00\xFF\xFF\x00\x00\x18"
+                "v": "8-off-H-v.png",
+                "V": "8-off-H-V.png"
             }
         },
         "on": {
             "h": {
-                "v": b"\x18\x18\x18\x1F\x1F\x00\x00\x00",
-                "V": b"\x18\x18\x18\x1F\x1F\x18\x18\x18"
+                "v": "8-on-h-v.png",
+                "V": "8-on-h-V.png"
             },
             "H": {
-                "v": b"\x18\x18\x18\xFF\xFF\x00\x00\x00",
-                "V": b"\x18\x18\x18\xFF\xFF\x18\x18\x18"
+                "v": "8-on-H-v.png",
+                "V": "8-on-H-V.png"
             }
         }
     },

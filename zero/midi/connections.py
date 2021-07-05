@@ -47,19 +47,24 @@ def _load_hidden_ports(config, ports):
         except KeyError:
             next
 
-def devices_str():
-    return str(sorted([dev for dev in mido.get_input_names() + mido.get_output_names() if dev[0:6] != 'RtMidi']))
+def _valid_inputs():
+    return sorted([dev for dev in mido.get_input_names() if dev[0:6] != 'RtMidi'])
+
+def _valid_outputs():
+    return sorted([dev for dev in mido.get_output_names() if dev[0:6] != 'RtMidi'])
 
 class Connections:
     def __init__(self):
-        self._devices = devices_str()
-        self.inputs = [Port(port) for port in sorted(mido.get_input_names())]
-        self.outputs = [Port(port) for port in sorted(mido.get_output_names())]
+        inputs = _valid_inputs()
+        outputs = _valid_outputs()
+        self._devices = str(inputs + outputs)
+        self.inputs = [Port(port) for port in inputs]
+        self.outputs = [Port(port) for port in outputs]
         self._connections = {}
         self.load()
 
     def outdated(self):
-        return self._devices != devices_str()
+        return self._devices != str(_valid_inputs() + _valid_outputs())
 
     def save(self):
         _save_hidden_ports(self._config['hidden inputs'], self.inputs)
