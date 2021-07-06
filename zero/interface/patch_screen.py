@@ -1,16 +1,20 @@
 import interface.icons
 import interface.tools
 import interface.ui
-from interface.ui import FNT, FNT_BASE, D
+from interface.ui import BKG, FNT, FNT_BASE, D
 from interface.buttons import Command
 
-# assumption: W >= H
-#
-# /---------------|------------\
-# |               |            |
-# | desc(W-H x H) |tiles(H x H)|
-# |               |            |
-# \---------------|------------/
+D_H_MIN = 96
+
+# /--------------------\
+# |                    |
+# | tiles(W x (H-D_H)) |
+# |                    |
+# |--------------------|
+# |                    |
+# |    desc(W x D_H)   |
+# |                    |
+# \--------------------/
 
 class Tile:
     def __init__(self, state, state_h, state_v, invert):
@@ -23,9 +27,9 @@ class PatchScreen(interface.ui.Screen):
     def _start(self):
         self._cursor = (0, 0)
         self._cursor_visible = False
-        self._icons = interface.icons.Icons(self._H / max(self._model.M(), self._model.N()))
-        self.R_W = self._model.M() * self._icons.size
-        self.L_W = self._W - self.R_W
+        self._icons = interface.icons.Icons(min(self._W//self._model.M(), (self._H-D_H_MIN)//self._model.N()))
+        self._tiles_start = ((self._W - self._model.M() * self._icons.size)//2, 0)
+        self._desc_start = (0, self._model.N() * self._icons.size)
         self._draw_desc()
         self._draw_all_tiles()
 
@@ -85,17 +89,18 @@ class PatchScreen(interface.ui.Screen):
 
     def _draw_desc(self):
         (i, j) = self._cursor
-        self._draw.rectangle((0, 0, self.L_W - 1, self._H), fill=0)
+        self._draw.rectangle((self._desc_start, (self._W, self._H)), fill=BKG)
+        desc_h = self._H - self._desc_start[1]
         if not self._cursor_visible:
-            self._draw_image(interface.tools.resize_keep_ar(self._icons.icon("logo"), (self.L_W - 1, self._H)), (0, 0))
+            self._draw_image(interface.tools.resize_keep_ar(self._icons.icon("logo"), (self._W, desc_h)), self._desc_start)
             return
         input_name = self._model.input_name(i)
         output_name = self._model.output_name(j)
-        self._draw.text((D, D), input_name, **FNT)
+        self._draw.text((self._desc_start[0] + D, self._desc_start[1] + D), input_name, **FNT)
         (_, box_h) = self._draw.textsize(output_name, **FNT_BASE)
         self._draw.text((D, self._H - box_h - D), output_name, **FNT)
         icon = "connected" if self._model.connected(self._cursor) else "disconnected"
-        self._draw_icon(icon, (self.L_W//2 - 16, self._H//2 - 16))
+        self._draw_icon(icon, (self._W//2 - 16, self._desc_start[1] + desc_h//2 - 16))
 
     def _draw_cursor(self, cursor):
         self._draw_tile(cursor)
@@ -110,7 +115,7 @@ class PatchScreen(interface.ui.Screen):
 
     def _draw_tile(self, coord):
         (i, j) = coord
-        self._draw_image(self._icons.tile(self._tile(coord)), (self.L_W + i*self._icons.size, j*self._icons.size))
+        self._draw_image(self._icons.tile(self._tile(coord)), (self._tiles_start[0] + i*self._icons.size, self._tiles_start[1] + j*self._icons.size))
 
     def _draw_all_tiles(self):
         for x in range(0, self._model.M()):

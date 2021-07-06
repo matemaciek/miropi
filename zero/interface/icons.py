@@ -204,5 +204,27 @@ _raw_tiles = {
                 "V": "32-on-H-V.png"
             }
         }
-    }
+    },
+    48: {
+        "off": {
+            "h": {
+                "v": "48-off-h-v.png",
+                "V": "48-off-h-V.png"
+            },
+            "H": {
+                "v": "48-off-H-v.png",
+                "V": "48-off-H-V.png"
+            }
+        },
+        "on": {
+            "h": {
+                "v": "48-on-h-v.png",
+                "V": "48-on-h-V.png"
+            },
+            "H": {
+                "v": "48-on-H-v.png",
+                "V": "48-on-H-V.png"
+            }
+        }
+    },
 }
