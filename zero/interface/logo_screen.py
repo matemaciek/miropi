@@ -1,5 +1,4 @@
 import interface.ui
-import interface.patch_screen
 import interface.list_screen
 import interface.tools
 from interface.buttons import Command
@@ -14,7 +13,6 @@ class LogoScreen(interface.ui.Screen):
     def click(self, command):
         if command == Command.ENTER:
             return (ScreenCommand.SHOW, [
-                interface.patch_screen.PatchScreen,
                 interface.list_screen.ConnectionScreen,
                 interface.list_screen.InputListScreen,
                 interface.list_screen.OutputListScreen
