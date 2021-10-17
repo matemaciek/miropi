@@ -10,7 +10,7 @@ async def _send(port, msg):
 class Writer:
     def __init__(self, output):
         self.output = output
-        self._output_port = mido.open_output(output.name)
+        self._output_port = mido.open_output(output.port_name)
         self.queue = asyncio.Queue()
         self.filter = midi.filter.NoteFilter()
         self._worker_task = asyncio.create_task(self._worker())
@@ -71,7 +71,7 @@ class Connection:
             for output in self._outputs.values():
                 loop.call_soon_threadsafe(output.queue.put_nowait, msg)
         
-        self._input_port = mido.open_input(self._input.name, callback=callback)
+        self._input_port = mido.open_input(self._input.port_name, callback=callback)
 
     def _stop_reader(self):
         self._input_port.close()

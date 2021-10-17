@@ -1,51 +1,53 @@
 import mido
-import itertools
-import yaml
 
+import config
 import midi.connection
-
-CONF_FILE = 'config.yaml'
 
 class Port:
     def __init__(self, name):
-        self.name = name
         self.enabled = True
+        self.alias = None
+        self.port_name = name
         splitted = name.split(":")
         self.device = splitted[0]
         self.port = " ".join(splitted[1].split(" ")[0:-1])
         self.id = ":".join([splitted[1].split(" ")[-1], splitted[2]])
+        self.full_id = self.device + " / " + self.port
 
-    def persistent_id(self):
-        return self.device + " / " + self.port
+    @property
+    def hidden(self):
+        return not self.enabled
 
     def toggle(self):
         self.enabled = not self.enabled
+        (self._after_change)(self)
 
-def _unpersist_id(id, ports):
-    return next(p for p in ports if p.persistent_id() == id)
+    def setup(self, hidden, alias, after_change):
+        self.config = config
+        self.enabled = not hidden
+        self.alias = alias
+        self._after_change = after_change
 
-def _save_hidden_ports(config, ports):
-    for p in ports:
-        if p.enabled: # remove if necessary
-            if p.device in config:
-                if p.port in config[p.device]:
-                    config[p.device].remove(p.port)
-                if len(config[p.device]) == 0:
-                    del config[p.device]
-        else: # add if necessary
-            if p.device not in config:
-                config[p.device] = []
-            if p.port not in config[p.device]:
-                config[p.device].append(p.port)
+    def name(self):
+        """unique name for config"""
+        if self.alias is not None:
+            return self.alias
+        return self.full_id
 
+    @property
+    def short_name(self):
+        if self.alias is not None:
+            return self.alias
+        return self.port
 
-def _load_hidden_ports(config, ports):
-    for p in ports:
-        try:
-            if p.port in config[p.device]:
-                p.toggle()
-        except KeyError:
-            next
+    def names(self):
+        return [self.alias, self.full_id]
+
+    def named(self, name):
+        return name in self.names()
+
+def _get_by_name(name, ports):
+    return next(p for p in ports if p.named(name))
 
 def _valid_inputs():
     return sorted([dev for dev in mido.get_input_names() if dev[0:6] != 'RtMidi'])
@@ -55,36 +57,23 @@ def _valid_outputs():
 
 class Connections:
     def __init__(self):
+        self._config = config.Config()
         inputs = _valid_inputs()
         outputs = _valid_outputs()
         self._devices = str(inputs + outputs)
         self.inputs = [Port(port) for port in inputs]
         self.outputs = [Port(port) for port in outputs]
+        self._config.register_inputs(self.inputs)
+        self._config.register_outputs(self.outputs)
         self._connections = {}
-        self.load()
+        for src, dst in self._config.connections():
+            try:
+                self._toggle((_get_by_name(src, self.inputs), _get_by_name(dst, self.outputs)))
+            except StopIteration:
+                next
 
     def outdated(self):
         return self._devices != str(_valid_inputs() + _valid_outputs())
-
-    def save(self):
-        _save_hidden_ports(self._config['hidden inputs'], self.inputs)
-        _save_hidden_ports(self._config['hidden outputs'], self.outputs)
-        with open(CONF_FILE, 'w') as file:
-            yaml.dump(self._config, file, Dumper=yaml.Dumper)
-
-    def load(self):
-        open(CONF_FILE, 'a').close() # create if not exists
-        with open(CONF_FILE) as file:
-            config = yaml.load(file, Loader=yaml.Loader)
-            self._config = {'hidden inputs': {}, 'hidden outputs': {}, 'connections': {}} if config is None else config
-            _load_hidden_ports(self._config['hidden inputs'], self.inputs)
-            _load_hidden_ports(self._config['hidden outputs'], self.outputs)
-            for src, dsts in self._config['connections'].items():
-                for dst in dsts:
-                    try:
-                        self._toggle((_unpersist_id(src, self.inputs), _unpersist_id(dst, self.outputs)))
-                    except StopIteration:
-                        next
 
     def M(self):
         return len(self._enabled_inputs())
@@ -102,17 +91,7 @@ class Connections:
     def toggle(self, coord):
         (src, dst) = self._coord_to_ports(coord)
         self._toggle((src, dst))
-
-        # update config
-        connections = self._config['connections']
-        if self.connected(coord):
-            if src.persistent_id() not in connections:
-                connections[src.persistent_id()] = []
-            connections[src.persistent_id()].append(dst.persistent_id())
-        else:
-            connections[src.persistent_id()].remove(dst.persistent_id())
-            if len(connections[src.persistent_id()]) == 0:
-                del connections[src.persistent_id()]
+        self._config.update((src, dst), self.connected(coord))
 
     def _toggle(self, coord):
         (src, dst) = coord
@@ -131,16 +110,16 @@ class Connections:
         return (self._enabled_inputs()[i], self._enabled_outputs()[j])
 
     def input_name(self, i):
-        return self._enabled_inputs()[i].port
+        return self._enabled_inputs()[i].short_name
 
     def output_name(self, j):
-        return self._enabled_outputs()[j].port
+        return self._enabled_outputs()[j].short_name
 
     def input_name_for_id(self, id):
-        return next(p for p in self.inputs if p.id == id).port
+        return next(p for p in self.inputs if p.id == id).short_name
 
     def output_name_for_id(self, id):
-        return next(p for p in self.outputs if p.id == id).port
+        return next(p for p in self.outputs if p.id == id).short_name
 
     def connections(self):
         result = []

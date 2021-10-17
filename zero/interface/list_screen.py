@@ -59,12 +59,11 @@ class IOListScreen(ListScreen):
         return NotImplemented
 
     def _fill(self):
-        return [input.port for input in self._list_model()]
+        return [input.short_name for input in self._list_model()]
 
     def click(self, command):
         if command == Command.ENTER:
             self._list_model()[self._cursor].toggle()
-            self._model.save()
             self._draw_icon()
             return
         return super().click(command)

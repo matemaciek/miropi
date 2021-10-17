@@ -4,7 +4,7 @@ import interface.ui
 from interface.buttons import Command
 from interface.ui import ScreenCommand, BKG, FNT, FNT_BASE
 
-def ip():
+def _ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('8.8.8.8', 1))
     return s.getsockname()[0]
@@ -12,7 +12,7 @@ def ip():
 class DebugScreen(interface.ui.Screen):
     def _start(self):
         self._draw.rectangle((0, 0, self._W, self._H), fill=BKG)
-        text = "IP: {}\nUp / Back:  shutdown\nEnter: reboot\nDown: restart".format(ip())
+        text = "IP: {}\nUp / Back:  shutdown\nEnter: reboot\nDown: restart".format(_ip())
         (box_x, box_y) = self._draw.textsize(text, **FNT_BASE)
         self._draw.text(((self._W - box_x)//2, (self._H - box_y)//2), text, **FNT)
 
@@ -26,4 +26,4 @@ class DebugScreen(interface.ui.Screen):
         return super().click(command)
 
     def _title(self):
-        return "Power"
+        return "μρπ"
