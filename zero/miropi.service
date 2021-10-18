@@ -1,0 +1,13 @@
+ [Unit]
+ Description=μρπ
+ After=network.target
+ StartLimitIntervalSec=500
+ StartLimitBurst=5
+
+ [Service]
+ Type=simple
+ ExecStart=/usr/bin/su - pi -c "/usr/bin/screen -L -DmS miropi /home/pi/miropi/zero/run.sh"
+ Restart=always
+
+ [Install]
+ WantedBy=multi-user.target

@@ -12,7 +12,7 @@ def _ip():
 class DebugScreen(interface.ui.Screen):
     def _start(self):
         self._draw.rectangle((0, 0, self._W, self._H), fill=BKG)
-        text = "IP: {}\nUp / Back:  shutdown\nEnter: reboot\nDown: restart".format(_ip())
+        text = "IP: {}\nUp / Back:  restart\nEnter: reboot\nDown: shutdown".format(_ip())
         (box_x, box_y) = self._draw.textsize(text, **FNT_BASE)
         self._draw.text(((self._W - box_x)//2, (self._H - box_y)//2), text, **FNT)
 
