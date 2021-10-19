@@ -1,4 +1,5 @@
 import asyncio
+import time
 from gpiozero import Button
 from enum import Enum
 
@@ -15,6 +16,7 @@ class Buttons:
         self._buttons = []
         for key in mapping.keys():
             self._connect(key, mapping[key], action)
+            time.sleep(0.1)
 
     def _connect(self, pin, command, action):
         button = Button(pin)
