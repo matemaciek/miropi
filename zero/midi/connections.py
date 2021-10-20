@@ -134,3 +134,9 @@ class Connections:
     def set_filter(self, connection, mode, note):
         (src, dst) = connection
         self._connections[src].to(dst).filter = midi.filter.NoteFilter(mode, note)
+
+    def drop_ports(self):
+        print( "Cleaning connections" )
+        for key in list( self._connections.keys() ):
+            self._connections[key].cleanup()
+

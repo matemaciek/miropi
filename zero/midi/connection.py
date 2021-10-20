@@ -20,11 +20,11 @@ class Writer:
             msg = await self.queue.get()
             filtered = self.filter.process(msg)
             if filtered is not None:
-                #print("Out:", self.output.id, filtered)
+                print("Out:", self.output.id, filtered)
                 asyncio.create_task(_send(self._output_port, filtered))
             else:
                 pass
-                #print("Filtered:", self.output.id, msg)
+                print("Filtered:", self.output.id, msg)
 
     def __del__(self):
         self._worker_task.cancel()
@@ -64,21 +64,28 @@ class Connection:
             self._stop_reader()
 
     def _start_reader(self):
+        print("Starting reader ", self._input.id)
         loop = asyncio.get_event_loop()
         def callback(msg):
             msg.time = time.monotonic()
-            #print("In:", self._input.id, msg)
+            print("In:", self._input.id, msg)
             for output in self._outputs.values():
                 loop.call_soon_threadsafe(output.queue.put_nowait, msg)
         
         self._input_port = mido.open_input(self._input.port_name, callback=callback)
 
     def _stop_reader(self):
+        print("Stopping reader ", self._input.id)
         self._input_port.close()
 
     def __del__(self):
+        print("Demolishing connection ", self._input.id)
         for output in list(self._outputs.values()):
             self.disconnect(output.output)
 
     def outputs(self):
         return self._outputs.keys()
+
+    def cleanup(self):
+        for writer in list( self._outputs.values() ):
+            self.disconnect(writer.output)
