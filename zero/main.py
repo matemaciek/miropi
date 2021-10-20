@@ -25,8 +25,13 @@ async def main():
 
     while True:
         if model is None or model.outdated():
-            print("Model outdated, reloading")
-            del (model, screen, buttons)
+            if model is None:
+                print("Initializing model")
+            else:
+                print("Model outdated, reloading")
+                model.drop_ports()
+                del (model, screen, buttons)
+
             (model, screen, buttons) = load()
         await asyncio.sleep(5)
 
